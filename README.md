@@ -1,70 +1,98 @@
-# 📈 Comparative Stock Prediction  
-**Multivariate Regression & Event-Based Analysis of Stock Movements**
+# Comparative Stock Prediction: Sectoral Behavior under Market Forces
 
-This project explores how macroeconomic indicators affect stock performance across major tech and energy companies. We used a combination of statistical modeling, anomaly detection, and event-based analysis to identify trends, performance shifts, and impactful financial events.
+## Project Summary
 
----
+This project explores the predictive relationships between major market indices and sectoral stock movements using a combination of multivariate regression and anomaly detection techniques. Drawing from time-series theory and financial econometrics, it identifies latent volatility trends and market anomalies by combining price, volume, and macroeconomic indicators.
 
-## 📘 Overview
-
-We analyzed historical stock data for companies like Meta, Microsoft, and ExxonMobil, alongside macroeconomic variables such as crude oil prices, interest rates, and inflation indicators. Our goal was to assess whether certain market events and macro indicators could predict stock movements.
-
-Key components:
-- Multivariate regression to model stock behavior
-- PCA for dimensionality reduction
-- Anomaly detection using Mahalanobis Distance and Z-scores
-- Event-based analysis to study stock volatility around significant events
+> This work demonstrates proficiency in statistical modeling, unsupervised outlier detection, dimensionality reduction, and explainable financial analysis — all crucial for real-world ML applications in finance and economics.
 
 ---
 
-## 🧠 Techniques Used
+## Problem Statement
 
-- Multivariate Linear Regression (OLS, LASSO/ElasticNet)
-- Principal Component Analysis (PCA)
-- Anomaly Detection (Z-score, Mahalanobis Distance)
-- Event-Based Analysis (volatility before/after economic events)
-- Statistical hypothesis testing (False Discovery Rate control)
+- How do stocks in different sectors (Tech vs. Energy) respond to macroeconomic changes and S&P 500 movements?
+- Can we reliably detect stock price anomalies in response to global events (e.g., COVID-19 crash, Fed rate hikes)?
+- Which features have predictive power in forecasting stock returns over a weekly horizon?
 
 ---
 
-## 📂 Notebooks
+## Data
 
-| Notebook | Description |
-|----------|-------------|
-| `PreliminaryAnalysis.ipynb` | Raw data exploration and initial feature correlation |
-| `1_AnomalyDetection.ipynb` | Outlier detection using PCA and multivariate methods |
-| `2_MultivariateRegression.ipynb` | OLS + LASSO regression modeling and evaluation |
-| `3_Event_Based_Analysis.ipynb` | Stock behavior analysis around major economic events |
-
----
-
-## 🗃️ Dataset
-
-- Source: [Yahoo Finance API](https://www.yfinance.com/)
-- Period: January 2013 – December 2024
-- Assets: Meta, Microsoft, ExxonMobil, S&P 500
-- Macroeconomic Features: Interest Rate, Crude Oil Price, Inflation Rate
+- **Source**: Yahoo Finance API (`yfinance`)
+- **Timeframe**: Jan 2013 – Dec 2024
+- **Instruments**:
+  - META (Technology)
+  - MSFT (Technology)
+  - XOM (Energy)
+  - S&P 500 (^GSPC)
+- **External Variables**:
+  - Crude Oil Prices
+  - Interest Rates
+  - Inflation Index
 
 ---
 
-## ✅ Key Findings
+## Methodology
 
-- **Regression Models:** S&P 500 emerged as a strong predictor for all three stocks; Oil and Interest Rates had stock-specific effects.
-- **Anomalies Detected:** COVID-19 crash, US-China trade war, Fed Rate Hikes
-- **Events Evaluated:** 2015 China crash, 2020 pandemic, Brexit, GameStop short squeeze
-- **Volatility shifts** were statistically significant before and after key events
+### 1. Exploratory Data Analysis (EDA)
+- Rolling average and log return computation
+- Sector-level volatility visualization
+- Correlation heatmaps of stock movements
+
+### 2. Anomaly Detection
+- **Univariate**: Z-score based detection using IQR-derived normal distribution
+- **Bivariate**: Mahalanobis distance on PCA-reduced price-volume pairs
+- **Multivariate**: PCA (m=8 → m=2) for all stocks, followed by chi-squared thresholding
+
+### 3. Event Analysis
+- Aligned anomalies with economic events:
+  - 2015 China Market Crash
+  - 2020 COVID-19 Crash
+  - 2022 Inflation Cooldown
+  - GameStop Short Squeeze (2021)
+- Conducted return differential and volatility shift analysis around these dates
+
+### 4. Multivariate Regression
+- **Target**: Weekly log returns of META, MSFT, XOM
+- **Features**: S&P 500, Crude Oil Prices, Interest Rates
+- Used both:
+  - OLS (Ordinary Least Squares)
+  - ElasticNet (L1 Regularization)
 
 ---
 
-## 📌 Visuals
+## Key Results
 
-All relevant visualizations (correlation matrices, anomaly plots, regression results) are available within the notebooks listed above.
+| Stock | R² (OLS) | Significant Predictors |
+|-------|----------|------------------------|
+| META  | 0.22     | S&P500                 |
+| MSFT  | 0.47     | S&P500, Oil, Interest  |
+| XOM   | 0.37     | S&P500, Oil, Interest  |
+
+- Regularization stabilized weights and fixed interpretability issues
+- PCA-informed anomaly detection successfully flagged outliers across low-volatility periods
 
 ---
 
-## 📚 Key Takeaways
+## Insights
 
-- Built interpretable ML/stat models for financial trend analysis
-- Gained experience with macroeconomic impact measurement
-- Practiced hypothesis testing and statistical diagnostics for real-world time-series data
+- Combining PCA and Mahalanobis distance allows for effective multivariate outlier detection
+- S&P 500 is the most consistently predictive factor across all sectors
+- Crude oil prices significantly affect XOM and even MSFT due to indirect economic ties
+- Sector-specific anomalies reveal non-linear dependencies not captured in linear models
 
+---
+
+## Limitations & Future Work
+
+- Linear models struggle with low R² for tech stocks like META — nonlinear alternatives (e.g., Random Forest) may perform better
+- Feature selection can be enhanced with time-varying coefficients or regime-switching models
+- Explore minimum covariance determinant or Isolation Forest with non-Gaussian assumptions
+
+---
+
+## Tech Stack
+
+- **Python Libraries**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `yfinance`
+- **Modeling Tools**: OLS, ElasticNet, PCA, Mahalanobis distance
+- **Visualization**: `matplotlib`, `seaborn`
