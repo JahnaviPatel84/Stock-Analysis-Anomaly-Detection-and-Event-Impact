@@ -1,98 +1,97 @@
-# Comparative Stock Prediction: Sectoral Behavior under Market Forces
+# Comparative Stock Prediction: Multivariate Regression and Event-Aligned Anomaly Analysis
 
-## Project Summary
+This project presents a robust empirical study on sectoral stock behavior using multivariate regression modeling, PCA-informed anomaly detection, and event-based volatility diagnostics. It investigates how macroeconomic indicators and major global events influence the return dynamics and volatility profiles of key stocks in the tech and energy sectors over a 12-year period (2013–2024).
 
-This project explores the predictive relationships between major market indices and sectoral stock movements using a combination of multivariate regression and anomaly detection techniques. Drawing from time-series theory and financial econometrics, it identifies latent volatility trends and market anomalies by combining price, volume, and macroeconomic indicators.
-
-> This work demonstrates proficiency in statistical modeling, unsupervised outlier detection, dimensionality reduction, and explainable financial analysis — all crucial for real-world ML applications in finance and economics.
+> Developed as part of the final project for DSC 244: Time Series Analysis & Financial Econometrics.
 
 ---
 
-## Problem Statement
+## Objectives
 
-- How do stocks in different sectors (Tech vs. Energy) respond to macroeconomic changes and S&P 500 movements?
-- Can we reliably detect stock price anomalies in response to global events (e.g., COVID-19 crash, Fed rate hikes)?
-- Which features have predictive power in forecasting stock returns over a weekly horizon?
+- Quantify the impact of macroeconomic factors (S&P 500, crude oil, interest rates) on stock returns of META, MSFT, and XOM.
+- Identify stock-specific and cross-stock anomalies in weekly log returns using multivariate and PCA-based methods.
+- Evaluate the structural changes in volatility and correlation patterns before and after known economic events (e.g., COVID-19 crash, Fed hikes).
+- Assess the limitations of OLS regression and propose regularized extensions.
 
 ---
 
-## Data
+## Dataset
 
 - **Source**: Yahoo Finance API (`yfinance`)
-- **Timeframe**: Jan 2013 – Dec 2024
-- **Instruments**:
-  - META (Technology)
-  - MSFT (Technology)
+- **Time Range**: Jan 1, 2013 – Dec 31, 2024
+- **Stocks Analyzed**:
+  - META (Tech)
+  - MSFT (Tech)
   - XOM (Energy)
-  - S&P 500 (^GSPC)
-- **External Variables**:
-  - Crude Oil Prices
-  - Interest Rates
-  - Inflation Index
+  - ^GSPC (S&P 500 Index)
+- **Derived Features**:
+  - Weekly averaged log returns
+  - Rolling volatility
+  - Principal Components (PCs)
+  - Sectoral correlation matrices
 
 ---
 
 ## Methodology
 
-### 1. Exploratory Data Analysis (EDA)
-- Rolling average and log return computation
-- Sector-level volatility visualization
-- Correlation heatmaps of stock movements
+### 1. Anomaly Detection
+- **Univariate**: Z-score testing on median-centered IQR-based normal distribution (price only)
+- **Bivariate**: PCA on price & volume → Mahalanobis distance → BH-corrected p-values
+- **Multivariate (m=8)**: Three approaches using raw features, all PCs, and top 2 PCs (from Marčenko–Pastur distribution)
+- **Validation**: Simulated null distributions verified the robustness of PC-based Mahalanobis detection
 
-### 2. Anomaly Detection
-- **Univariate**: Z-score based detection using IQR-derived normal distribution
-- **Bivariate**: Mahalanobis distance on PCA-reduced price-volume pairs
-- **Multivariate**: PCA (m=8 → m=2) for all stocks, followed by chi-squared thresholding
+### 2. Multivariate Regression
+- **Target**: Log returns of META, MSFT, XOM
+- **Features**: S&P500, crude oil prices, interest rates
+- **Model**: OLS with BH correction, VIF diagnostics, and exploratory ElasticNet (L1) for overfit mitigation
+- **Key Insight**: S&P500 consistently emerges as the strongest predictor
 
-### 3. Event Analysis
-- Aligned anomalies with economic events:
-  - 2015 China Market Crash
-  - 2020 COVID-19 Crash
-  - 2022 Inflation Cooldown
-  - GameStop Short Squeeze (2021)
-- Conducted return differential and volatility shift analysis around these dates
-
-### 4. Multivariate Regression
-- **Target**: Weekly log returns of META, MSFT, XOM
-- **Features**: S&P 500, Crude Oil Prices, Interest Rates
-- Used both:
-  - OLS (Ordinary Least Squares)
-  - ElasticNet (L1 Regularization)
+### 3. Event-Based Volatility & Correlation Analysis
+- Assessed rolling volatility (30-day), correlation matrices, and return distributions across:
+  - COVID-19 crash
+  - China market crash
+  - Inflation surge and cooldown
+  - Fed rate decisions
+  - GME short squeeze
+- Statistical significance tested via two-sample t-tests with FDR correction
 
 ---
 
 ## Key Results
 
-| Stock | R² (OLS) | Significant Predictors |
-|-------|----------|------------------------|
-| META  | 0.22     | S&P500                 |
-| MSFT  | 0.47     | S&P500, Oil, Interest  |
-| XOM   | 0.37     | S&P500, Oil, Interest  |
+| Stock | R² (OLS) | Significant Features                         |
+|-------|----------|-----------------------------------------------|
+| META  | 0.22     | S&P500                                        |
+| MSFT  | 0.47     | S&P500, Crude Oil, Interest Rates             |
+| XOM   | 0.37     | S&P500, Crude Oil, Interest Rates             |
 
-- Regularization stabilized weights and fixed interpretability issues
-- PCA-informed anomaly detection successfully flagged outliers across low-volatility periods
+- Anomalies from COVID-19 (low + rebound), Fed events, and trade slowdowns were successfully detected across price-only, price+volume, and all-stocks detection
+- Correlation shifts post-events revealed sectoral decoupling (e.g., META-MSFT drop from 0.97 to 0.90 during COVID)
 
 ---
 
 ## Insights
 
-- Combining PCA and Mahalanobis distance allows for effective multivariate outlier detection
-- S&P 500 is the most consistently predictive factor across all sectors
-- Crude oil prices significantly affect XOM and even MSFT due to indirect economic ties
-- Sector-specific anomalies reveal non-linear dependencies not captured in linear models
+- **Tech stocks** show higher volatility and stronger response to sentiment-driven shocks
+- **Energy stocks** (XOM) remained more stable across most events but reflected commodity price impacts
+- Multivariate outlier detection is more reliable when reducing noise via PCA
+- Regularization in regression mitigates overfitting but makes parameter inference non-trivial
+- Statistical significance of return shifts is rare despite strong visual evidence—reinforcing the importance of multiple forms of validation
 
 ---
 
-## Limitations & Future Work
+## Limitations
 
-- Linear models struggle with low R² for tech stocks like META — nonlinear alternatives (e.g., Random Forest) may perform better
-- Feature selection can be enhanced with time-varying coefficients or regime-switching models
-- Explore minimum covariance determinant or Isolation Forest with non-Gaussian assumptions
+- Anomaly detection assumes linear structure via PCA; nonlinear manifold-based methods could improve results
+- Regression results limited by low R² (especially for META) and potential omitted-variable bias
+- Event-based testing suffers from short pre/post windows, reducing test power
 
 ---
 
 ## Tech Stack
 
-- **Python Libraries**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `yfinance`
-- **Modeling Tools**: OLS, ElasticNet, PCA, Mahalanobis distance
-- **Visualization**: `matplotlib`, `seaborn`
+- Python (`pandas`, `numpy`, `scikit-learn`, `statsmodels`)
+- Data source: Yahoo Finance via `yfinance`
+- Visualization: `matplotlib`, `seaborn`
+- Outlier detection: Mahalanobis distance, PCA, chi-square testing
+- Statistical modeling: OLS, ElasticNet
